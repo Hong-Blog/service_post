@@ -10,10 +10,10 @@ import (
 var Db *sqlx.DB
 
 func init() {
-	Db = GetDb()
+	Db = getDb()
 }
 
-func GetDb() *sqlx.DB {
+func getDb() *sqlx.DB {
 	dataSource := os.Getenv("DATA_SOURCE")
 	if dataSource == "" {
 		dataSource = "root:123qwe@tcp(127.0.0.1:3306)/hongblog?parseTime=true"
