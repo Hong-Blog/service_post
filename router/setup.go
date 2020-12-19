@@ -16,6 +16,8 @@ func SetupRouter(engine *gin.Engine) {
 		categories.GET("", categoryHandler.CategoryList)
 		categories.GET("/", categoryHandler.CategoryList)
 		categories.POST("", categoryHandler.AddBizType)
+		categories.GET("/:id", categoryHandler.GetById)
+		categories.PUT("/:id", categoryHandler.UpdateById)
+		categories.DELETE("/:id", categoryHandler.DeleteById)
 	}
-
 }
