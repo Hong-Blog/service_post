@@ -5,6 +5,7 @@ import (
 	"log"
 	"service_post/db"
 	"service_post/models"
+	"service_post/models/bizArticle"
 )
 
 func (t *BizType) ExistByName() bool {
@@ -117,6 +118,14 @@ where id = :id;
 }
 
 func (t *BizType) Delete() error {
+	articleCount, err := bizArticle.CountByTypeId(t.Id)
+	if err != nil {
+		return err
+	}
+	if articleCount > 0 {
+		return errors.New("有关联博客，禁止删除")
+	}
+
 	deleteSql := `
 delete
 from biz_type
