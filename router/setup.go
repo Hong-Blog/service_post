@@ -26,7 +26,7 @@ func SetupRouter(engine *gin.Engine) {
 	{
 		tags.GET("", tagHandler.TagList)
 		tags.GET("/", tagHandler.TagList)
-		tags.POST("/", tagHandler.AddBizTag)
+		tags.POST("", tagHandler.AddBizTag)
 		tags.GET("/:id", tagHandler.GetById)
 		tags.PUT("/:id", tagHandler.UpdateById)
 		tags.DELETE("/:id", tagHandler.DeleteById)
