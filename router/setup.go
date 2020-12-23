@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"service_post/handlers/categoryHandler"
+	"service_post/handlers/postHandler"
 	"service_post/handlers/tagHandler"
 )
 
@@ -30,5 +31,11 @@ func SetupRouter(engine *gin.Engine) {
 		tags.GET("/:id", tagHandler.GetById)
 		tags.PUT("/:id", tagHandler.UpdateById)
 		tags.DELETE("/:id", tagHandler.DeleteById)
+	}
+
+	posts := engine.Group("/posts")
+	{
+		posts.GET("", postHandler.GetArticleList)
+		posts.GET("/", postHandler.GetArticleList)
 	}
 }
