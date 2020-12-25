@@ -1,11 +1,29 @@
 package bizArticle
 
 import (
+	"errors"
+	"github.com/jmoiron/sqlx"
 	"log"
 	"service_post/db"
 	"service_post/models/bizTags"
 	"service_post/models/bizType"
 )
+
+func (r *BizArticle) Delete() (err error) {
+	sql := `
+delete
+from biz_article
+where id = ?
+`
+	affected, affectedErr := db.Db.MustExec(sql, r.Id).RowsAffected()
+	if affectedErr != nil {
+		return affectedErr
+	}
+	if affected == 0 {
+		return errors.New("删除失败")
+	}
+	return nil
+}
 
 func GetArticleList(req GetArticleListRequest) (list []ArticleModel, count int) {
 	dataSql := `
@@ -110,4 +128,61 @@ func GetDetailById(id int) (detail ArticleDetail, err error) {
 	detail.BizType = curType
 	detail.BizTags = tags
 	return
+}
+
+func AddArticle(model AddArticleModel) (err error) {
+	// todo 获取当前用户ID
+	model.UserId = 1
+	tx := db.Db.MustBegin()
+	defer tx.Rollback()
+
+	newId, insertErr := insertArticle(model, tx)
+	if insertErr != nil {
+		return insertErr
+	}
+
+	insertTagErr := insertArticleTag(newId, model.TagIds, tx)
+	if insertTagErr != nil {
+		return insertTagErr
+	}
+
+	_ = tx.Commit()
+	return nil
+}
+
+func insertArticle(model AddArticleModel, tx *sqlx.Tx) (newId int, err error) {
+	insertSql := `
+insert into biz_article (title, user_id, cover_image, qrcode_path, is_markdown, content, content_md, top, type_id,
+                         status, recommended, original, description, keywords, comment, create_time)
+values (:title, :user_id, :cover_image, '', :is_markdown, :content, :content_md, 0, :type_id,
+        :status, 0, :original, :description, '', :comment, now());
+`
+
+	result, insertErr := tx.NamedExec(insertSql, model)
+	if insertErr != nil {
+		err = insertErr
+		return
+	}
+	id, insertIdErr := result.LastInsertId()
+	if insertIdErr != nil {
+		err = insertIdErr
+		return
+	}
+	newId = int(id)
+	return
+}
+
+func insertArticleTag(articleId int, tagIds []int, tx *sqlx.Tx) error {
+	insertSql := `
+insert into biz_article_tags (tag_id, article_id, create_time)
+values (:tag_id, :article_id, now());
+`
+	for _, id := range tagIds {
+		_, err := tx.NamedExec(insertSql, map[string]interface{}{
+			"tag_id":     id,
+			"article_id": articleId,
+		})
+		return err
+	}
+	return nil
 }

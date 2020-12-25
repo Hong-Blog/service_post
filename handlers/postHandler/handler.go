@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"service_post/models"
 	"service_post/models/bizArticle"
+	"service_post/validator"
 	"strconv"
 )
 
@@ -39,4 +40,31 @@ func GetDetailById(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, detail)
+}
+
+func DeleteById(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	article := bizArticle.BizArticle{Id: id}
+	err := article.Delete()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.String(http.StatusOK, "")
+}
+
+func AddArticle(c *gin.Context) {
+	var req bizArticle.AddArticleModel
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: validator.Translate(err)})
+		return
+	}
+
+	if err := bizArticle.AddArticle(req); err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.String(http.StatusOK, "")
 }
