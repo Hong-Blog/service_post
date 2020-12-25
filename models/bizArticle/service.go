@@ -141,7 +141,7 @@ func AddArticle(model AddArticleModel) (err error) {
 		return insertErr
 	}
 
-	insertTagErr := insertArticleTag(newId, model.TagIds, tx)
+	insertTagErr := setupArticleTag(newId, model.TagIds, tx)
 	if insertTagErr != nil {
 		return insertTagErr
 	}
@@ -172,7 +172,16 @@ values (:title, :user_id, :cover_image, '', :is_markdown, :content, :content_md,
 	return
 }
 
-func insertArticleTag(articleId int, tagIds []int, tx *sqlx.Tx) error {
+func setupArticleTag(articleId int, tagIds []int, tx *sqlx.Tx) error {
+	deleteSql := `
+delete from biz_article_tags
+where article_id = ?
+`
+	_, deleteErr := tx.Exec(deleteSql, articleId)
+	if deleteErr != nil {
+		return deleteErr
+	}
+
 	insertSql := `
 insert into biz_article_tags (tag_id, article_id, create_time)
 values (:tag_id, :article_id, now());
