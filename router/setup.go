@@ -37,5 +37,6 @@ func SetupRouter(engine *gin.Engine) {
 	{
 		posts.GET("", postHandler.GetArticleList)
 		posts.GET("/", postHandler.GetArticleList)
+		posts.GET("/:id", postHandler.GetDetailById)
 	}
 }

@@ -5,7 +5,6 @@ import (
 	"log"
 	"service_post/db"
 	"service_post/models"
-	"service_post/models/bizArticle"
 )
 
 func (t *BizTags) ExistByName() bool {
@@ -42,7 +41,7 @@ where id = :id
 }
 
 func (t *BizTags) Delete() error {
-	articleCount, err := bizArticle.CountByTagId(t.Id)
+	articleCount, err := countArticleByTagId(t.Id)
 	if err != nil {
 		return err
 	}
@@ -120,4 +119,27 @@ where id = ?
 `
 	err = db.Db.Get(&bizTag, dataSql, id)
 	return
+}
+
+func GetByArticleId(articleId int) (list []BizTags, err error) {
+	dataSql := `
+select bt.id, name, description, bt.create_time, bt.update_time
+from biz_tags bt
+         inner join biz_article_tags bat on bt.id = bat.article_id
+where bat.article_id = ?
+`
+	err = db.Db.Select(&list, dataSql, articleId)
+	return
+}
+
+func countArticleByTagId(tagId int) (count int, err error) {
+	dataSql := `
+select count(1)
+from biz_article_tags
+where tag_id = ?
+`
+	if err := db.Db.QueryRow(dataSql, tagId).Scan(&count); err != nil {
+		return 0, err
+	}
+	return count, nil
 }

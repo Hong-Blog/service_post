@@ -3,6 +3,8 @@ package bizArticle
 import (
 	"github.com/guregu/null"
 	"service_post/models"
+	"service_post/models/bizTags"
+	"service_post/models/bizType"
 )
 
 type GetArticleListRequest struct {
@@ -28,4 +30,10 @@ type ArticleModel struct {
 	Comment      null.Int    `json:"comment"`                      // 是否开启评论
 	CreateTime   null.Time   `json:"create_time" db:"create_time"` // 添加时间
 	UpdateTime   null.Time   `json:"update_time" db:"update_time"` // 更新时间
+}
+
+type ArticleDetail struct {
+	BizArticle
+	BizType bizType.BizType
+	BizTags []bizTags.BizTags
 }

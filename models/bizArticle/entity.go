@@ -4,7 +4,7 @@ import (
 	"github.com/guregu/null"
 )
 
-type Article struct {
+type BizArticle struct {
 	Id          int         `json:"id"`
 	Title       null.String `json:"title"`                        // 文章标题
 	UserId      int         `json:"user_id" db:"user_id"`         // 用户ID
@@ -14,7 +14,7 @@ type Article struct {
 	Content     null.String `json:"content"`                      // 文章内容
 	ContentMd   null.String `json:"content_md" db:"content_md"`   // markdown版的文章内容
 	Top         null.Int    `json:"top"`                          // 是否置顶
-	TypeId      int8        `json:"type_id" db:"type_id"`         // 类型
+	TypeId      int         `json:"type_id" db:"type_id"`         // 类型
 	Status      null.Int    `json:"status"`                       // 状态
 	Recommended null.Int    `json:"recommended"`                  // 是否推荐
 	Original    null.Int    `json:"original"`                     // 是否原创

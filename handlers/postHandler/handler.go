@@ -28,3 +28,15 @@ func GetArticleList(c *gin.Context) {
 	response.Total = count
 	c.JSON(http.StatusOK, response)
 }
+
+func GetDetailById(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	detail, err := bizArticle.GetDetailById(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, detail)
+}

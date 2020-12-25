@@ -3,31 +3,9 @@ package bizArticle
 import (
 	"log"
 	"service_post/db"
+	"service_post/models/bizTags"
+	"service_post/models/bizType"
 )
-
-func CountByTagId(tagId int) (count int, err error) {
-	dataSql := `
-select count(1)
-from biz_article_tags
-where tag_id = ?
-`
-	if err := db.Db.QueryRow(dataSql, tagId).Scan(&count); err != nil {
-		return 0, err
-	}
-	return count, nil
-}
-
-func CountByTypeId(typeId int) (count int, err error) {
-	dataSql := `
-select count(1)
-from biz_article
-where type_id = ?
-`
-	if err := db.Db.QueryRow(dataSql, typeId).Scan(&count); err != nil {
-		return 0, err
-	}
-	return count, nil
-}
 
 func GetArticleList(req GetArticleListRequest) (list []ArticleModel, count int) {
 	dataSql := `
@@ -84,5 +62,52 @@ where 1=1
 		log.Panicln("select biz_article err: " + err.Error())
 	}
 
+	return
+}
+
+func GetById(id int) (article BizArticle) {
+	dataSql := `
+select id,
+       title,
+       user_id,
+       cover_image,
+       qrcode_path,
+       is_markdown,
+       content,
+       content_md,
+       top,
+       type_id,
+       status,
+       recommended,
+       original,
+       description,
+       keywords,
+       comment,
+       create_time,
+       update_time
+from biz_article
+where id = ?
+`
+	if err := db.Db.Get(&article, dataSql, id); err != nil {
+		log.Panicln("select biz_article err: " + err.Error())
+	}
+	return
+}
+
+func GetDetailById(id int) (detail ArticleDetail, err error) {
+	article := GetById(id)
+	detail = ArticleDetail{BizArticle: article}
+
+	curType, typeErr := bizType.GetById(article.TypeId)
+	if typeErr != nil {
+		return ArticleDetail{}, typeErr
+	}
+	tags, tagErr := bizTags.GetByArticleId(id)
+	if tagErr != nil {
+		return ArticleDetail{}, tagErr
+	}
+
+	detail.BizType = curType
+	detail.BizTags = tags
 	return
 }

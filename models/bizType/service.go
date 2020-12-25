@@ -5,7 +5,6 @@ import (
 	"log"
 	"service_post/db"
 	"service_post/models"
-	"service_post/models/bizArticle"
 )
 
 func (t *BizType) ExistByName() bool {
@@ -118,7 +117,7 @@ where id = :id;
 }
 
 func (t *BizType) Delete() error {
-	articleCount, err := bizArticle.CountByTypeId(t.Id)
+	articleCount, err := countArticleByTypeId(t.Id)
 	if err != nil {
 		return err
 	}
@@ -141,4 +140,16 @@ where id = ?
 		return errors.New("删除失败")
 	}
 	return nil
+}
+
+func countArticleByTypeId(typeId int) (count int, err error) {
+	dataSql := `
+select count(1)
+from biz_article
+where type_id = ?
+`
+	if err := db.Db.QueryRow(dataSql, typeId).Scan(&count); err != nil {
+		return 0, err
+	}
+	return count, nil
 }
