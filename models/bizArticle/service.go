@@ -150,6 +150,54 @@ func AddArticle(model AddArticleModel) (err error) {
 	return nil
 }
 
+func EditArticle(model EditArticleModel) (err error) {
+	// todo 获取当前用户ID
+	model.UserId = 1
+
+	tx := db.Db.MustBegin()
+	defer tx.Rollback()
+
+	updateErr := updateArticle(model, tx)
+	if updateErr != nil {
+		return updateErr
+	}
+
+	insertTagErr := setupArticleTag(model.Id, model.TagIds, tx)
+	if insertTagErr != nil {
+		return insertTagErr
+	}
+	_ = tx.Commit()
+	return nil
+}
+
+func updateArticle(model EditArticleModel, tx *sqlx.Tx) (err error) {
+	updateSql := `
+UPDATE biz_article
+SET title       = :title,
+    user_id     = :user_id,
+    cover_image = :cover_image,
+    is_markdown = :is_markdown,
+    content     = :content,
+    content_md  = :content_md,
+    type_id     = :type_id,
+    status      = :status,
+    original    = :original,
+    description = :description,
+    comment     = :comment,
+    update_time = now()
+WHERE id = :id
+`
+	result, updateErr := tx.NamedExec(updateSql, model)
+	if updateErr != nil {
+		return updateErr
+	}
+	affected, _ := result.RowsAffected()
+	if affected == 0 {
+		return errors.New("更新失败")
+	}
+	return nil
+}
+
 func insertArticle(model AddArticleModel, tx *sqlx.Tx) (newId int, err error) {
 	insertSql := `
 insert into biz_article (title, user_id, cover_image, qrcode_path, is_markdown, content, content_md, top, type_id,

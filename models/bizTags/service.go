@@ -125,7 +125,7 @@ func GetByArticleId(articleId int) (list []BizTags, err error) {
 	dataSql := `
 select bt.id, name, description, bt.create_time, bt.update_time
 from biz_tags bt
-         inner join biz_article_tags bat on bt.id = bat.article_id
+         inner join biz_article_tags bat on bt.id = bat.tag_id
 where bat.article_id = ?
 `
 	err = db.Db.Select(&list, dataSql, articleId)

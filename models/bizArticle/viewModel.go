@@ -52,3 +52,8 @@ type AddArticleModel struct {
 	Comment     null.Int    `json:"comment"`                    // 是否开启评论
 	TagIds      []int       `json:"tag_ids"`                    // 标签
 }
+
+type EditArticleModel struct {
+	Id int `json:"id"`
+	AddArticleModel
+}

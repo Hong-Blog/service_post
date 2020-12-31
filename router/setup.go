@@ -39,6 +39,7 @@ func SetupRouter(engine *gin.Engine) {
 		posts.GET("/", postHandler.GetArticleList)
 		posts.POST("", postHandler.AddArticle)
 		posts.GET("/:id", postHandler.GetDetailById)
+		posts.PUT("/:id", postHandler.UpdateById)
 		posts.DELETE("/:id", postHandler.DeleteById)
 	}
 }

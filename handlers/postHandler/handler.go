@@ -68,3 +68,21 @@ func AddArticle(c *gin.Context) {
 
 	c.String(http.StatusOK, "")
 }
+
+func UpdateById(c *gin.Context) {
+	var req bizArticle.EditArticleModel
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: validator.Translate(err)})
+		return
+	}
+
+	id, _ := strconv.Atoi(c.Param("id"))
+	req.Id = id
+
+	if err := bizArticle.EditArticle(req); err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.String(http.StatusOK, "")
+}
